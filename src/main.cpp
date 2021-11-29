@@ -15,13 +15,16 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=265,161
 
 // GUItool: end automatically generated code
 
+#define g 9
+#define o 10
+#define r 11
 int speaker = 15;
 
 // A, F#, C, D, G
-int notes[5] = {220, 185, 262, 147, 800};
+int notes[5] = {220, 185, 262, 147, 520};
 
 int testTone(int note, int speaker);
-void showResults(int red, int orange, int green);
+void showResults(int note, float testNote, int red, int orange, int green);
 void administerTest(int speaker);
 
 void setup() {
@@ -31,6 +34,10 @@ void setup() {
   while (!Serial) ; // wait for Arduino Serial Monitor
   Serial.println("FFT test");
   notefreq.begin(.05);
+  pinMode(o, OUTPUT);
+  pinMode(g, OUTPUT);
+  pinMode(r, OUTPUT);
+
   administerTest(speaker);
 }
 
@@ -79,12 +86,15 @@ int testTone(int note, int speaker){
             if (diff < error){
                 total += recordedNote;
                 dataPoints++;
+                digitalWrite(g, HIGH);
+            } else {
+                digitalWrite(g, LOW);
             }
         }
     }
     
     //record number of data points
-
+    digitalWrite(g, LOW);
     //after 5 seconds divide the tone total by the number of data points and return it
     return total/dataPoints;
 }
@@ -93,10 +103,39 @@ void administerTest(int speaker){
     int results[5];
     for (int i = 0; i<5; i++){
         results[i] = testTone(notes[i], speaker);
+        showResults(notes[i], results[i], r, o, g);
     }
     for (int i = 0; i<5; i++){
         Serial.print(notes[i]);
         Serial.print(", ");
         Serial.println(results[i]);
     }
+}
+
+void showResults(int note, float testNote, int red, int orange, int green) {
+
+    int diff = abs(note-testNote);
+    int dellay = 200;
+
+    unsigned long time = millis();
+    while(millis()-time <2000){
+        if(testNote == 0) {
+            digitalWrite(red, HIGH);
+            delay(dellay);
+            digitalWrite(red, LOW);
+            delay(dellay);
+        } else if (diff > note/100){
+            digitalWrite(orange, HIGH);
+            delay(dellay);
+            digitalWrite(orange, LOW);
+            delay(dellay);
+        }else {
+            digitalWrite(green, HIGH);
+            delay(dellay);
+            digitalWrite(green, LOW);
+            delay(dellay);
+        }
+    }
+
+    delay(1000);
 }
