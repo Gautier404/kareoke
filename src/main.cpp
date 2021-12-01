@@ -15,9 +15,9 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=265,161
 
 // GUItool: end automatically generated code
 
-#define g 9
+#define g 11
 #define o 10
-#define r 11
+#define r 9
 int speaker = 15;
 
 // A, F#, C, D, G
